@@ -1,0 +1,118 @@
+datasource db {
+    provider = "sqlite"
+    url      = "file:./dev.db"
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+enum RoleType {
+    regular
+    cashier
+    manager
+    superuser
+}
+
+enum TransactionType {
+    purchase
+    redemption
+    adjustment
+    event
+    transfer
+}
+
+enum PromotionType {
+    automatic
+    onetime
+}
+
+model User {
+    id         Int       @id @default(autoincrement())
+    utorid     String    @unique
+    name       String
+    email      String    @unique
+    password   String?
+    role       RoleType  @default(regular)
+    verified   Boolean   @default(false)
+    suspicious Boolean   @default(false)
+    birthday   DateTime?
+    avatarUrl  String?
+    points     Int       @default(0)
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    lastLogin  DateTime?
+    expiresAt  DateTime?
+    resetToken String?
+
+    promotions   Promotion[]
+    transactions Transaction[]
+    organizerOf  Event[]       @relation("Organizers")
+    guestOf      Event[]       @relation("Guests")
+}
+
+model Event {
+    id            Int      @id @default(autoincrement())
+    name          String
+    description   String
+    location      String
+    startTime     DateTime
+    endTime       DateTime
+    capacity      Int?
+    pointsRemain  Int
+    pointsAwarded Int      @default(0)
+    published     Boolean  @default(false)
+    organizers    User[]   @relation("Organizers")
+    guests        User[]   @relation("Guests")
+}
+
+model Promotion {
+    id          Int           @id @default(autoincrement())
+    name        String
+    description String
+    type        PromotionType
+    rate        Float         @default(0)
+    points      Int           @default(0)
+    startTime   DateTime
+    endTime     DateTime
+    minSpending Float         @default(0)
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+
+    users        User[]
+    transactions Transaction[] @relation("TransactionPromotions")
+}
+
+model Transaction {
+    id     Int             @id @default(autoincrement())
+    user   User?           @relation(fields: [userId], references: [id])
+    userId Int?
+    type   TransactionType
+
+    // purchase transactions
+    spent  Float?
+    earned Int?
+
+    // adjustment transactions
+    amount    Float?
+    relatedId Int?
+
+    // redemption transactions
+    redeemed    Int?
+    processedBy String?
+
+    // transfer transactions
+    sender    String?
+    recipient String?
+    sent      Float?
+
+    // event transactions
+
+    // shared properties
+    remark     String?
+    suspicious Boolean     @default(false)
+    promotions Promotion[] @relation("TransactionPromotions")
+    createdBy  String
+    createdAt  DateTime    @default(now())
+    updatedAt  DateTime    @updatedAt
+}
