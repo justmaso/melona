@@ -113,7 +113,8 @@ export function FormField({
                 type={type}
                 placeholder={placeholder}
                 disabled={disabled}
-                {...register(name)}
+                // {...register(name)}
+                {...(register ? register(name) : {})}
             />
             {error && (
                 <p className="text-xs text-red-500">{error.message}</p>
