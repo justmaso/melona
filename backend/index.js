@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 "use strict"
 
-const port = (() => {
-    const args = process.argv
+// const port = (() => {
+//     const args = process.argv
 
-    if (args.length !== 3) {
-        console.error("usage: node index.js port")
-        process.exit(1)
-    }
+//     if (args.length !== 3) {
+//         console.error("usage: node index.js port")
+//         process.exit(1)
+//     }
 
-    const num = parseInt(args[2], 10)
-    if (isNaN(num)) {
-        console.error("error: argument must be an integer.")
-        process.exit(1)
-    }
+//     const num = parseInt(args[2], 10)
+//     if (isNaN(num)) {
+//         console.error("error: argument must be an integer.")
+//         process.exit(1)
+//     }
 
-    return num
-})()
+//     return num
+// })()
 
 const express = require("express")
 const cors = require("cors")
@@ -38,8 +38,9 @@ app.use(express.json())
 app.use("/", routes)
 app.use(errorHandler)
 
-const server = app.listen(port, () => {
-    console.log(`Server running on port ${port}`)
+const PORT = process.env.PORT
+const server = app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
 })
 
 server.on("error", (err) => {
